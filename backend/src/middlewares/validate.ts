@@ -12,13 +12,13 @@ export function validate(schema: ValidationSchema) {
   return (req: Request, _res: Response, next: NextFunction) => {
     try {
       if (schema.body) {
-        req.body = schema.body.parse(req.body);
+        req.body = schema.body.parse(req.body) as Request["body"];
       }
       if (schema.query) {
-        req.query = schema.query.parse(req.query);
+        schema.query.parse(req.query);
       }
       if (schema.params) {
-        req.params = schema.params.parse(req.params);
+        schema.params.parse(req.params);
       }
       next();
     } catch (error) {

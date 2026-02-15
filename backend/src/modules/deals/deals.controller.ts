@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { ApiError, getPagination } from "../../utils/http";
+import { optionalString, requiredParam } from "../../utils/request";
 import { logActivity } from "../activity/activity.service";
 import {
   addDealComment,
@@ -15,13 +16,17 @@ import {
 export async function getDeals(req: Request, res: Response, next: NextFunction) {
   try {
     const { page, limit } = getPagination(req);
+    const status = optionalString(req.query.status);
     const payload = await listDeals({
       page,
       limit,
-      search: req.query.search as string | undefined,
-      status: req.query.status as "NEW" | "CONTACTED" | "PROPOSAL" | "WON" | "LOST" | undefined,
-      managerId: req.query.managerId as string | undefined,
-      clientId: req.query.clientId as string | undefined,
+      search: optionalString(req.query.search),
+      status:
+        status && ["NEW", "CONTACTED", "PROPOSAL", "WON", "LOST"].includes(status)
+          ? (status as "NEW" | "CONTACTED" | "PROPOSAL" | "WON" | "LOST")
+          : undefined,
+      managerId: optionalString(req.query.managerId),
+      clientId: optionalString(req.query.clientId),
     });
     res.json(payload);
   } catch (error) {
@@ -31,7 +36,7 @@ export async function getDeals(req: Request, res: Response, next: NextFunction) 
 
 export async function getDeal(req: Request, res: Response, next: NextFunction) {
   try {
-    const deal = await getDealById(req.params.id);
+    const deal = await getDealById(requiredParam(req.params.id, "id"));
     res.json(deal);
   } catch (error) {
     next(error);
@@ -61,7 +66,7 @@ export async function patchDeal(req: Request, res: Response, next: NextFunction)
     if (!req.user) {
       throw new ApiError(401, "Authentication required");
     }
-    const deal = await updateDeal(req.params.id, req.body);
+    const deal = await updateDeal(requiredParam(req.params.id, "id"), req.body);
     await logActivity({
       userId: req.user.id,
       action: "update-deal",
@@ -79,7 +84,7 @@ export async function patchDealStatus(req: Request, res: Response, next: NextFun
     if (!req.user) {
       throw new ApiError(401, "Authentication required");
     }
-    const deal = await updateDealStatus(req.params.id, req.body.status);
+    const deal = await updateDealStatus(requiredParam(req.params.id, "id"), req.body.status);
     await logActivity({
       userId: req.user.id,
       action: "move-deal-stage",
@@ -98,12 +103,13 @@ export async function removeDeal(req: Request, res: Response, next: NextFunction
     if (!req.user) {
       throw new ApiError(401, "Authentication required");
     }
-    await deleteDeal(req.params.id);
+    const dealId = requiredParam(req.params.id, "id");
+    await deleteDeal(dealId);
     await logActivity({
       userId: req.user.id,
       action: "delete-deal",
       entityType: "Deal",
-      entityId: req.params.id,
+      entityId: dealId,
     });
     res.status(204).send();
   } catch (error) {
@@ -116,8 +122,9 @@ export async function postDealComment(req: Request, res: Response, next: NextFun
     if (!req.user) {
       throw new ApiError(401, "Authentication required");
     }
+    const dealId = requiredParam(req.params.id, "id");
     const comment = await addDealComment({
-      dealId: req.params.id,
+      dealId,
       userId: req.user.id,
       comment: req.body.comment,
     });
@@ -125,7 +132,7 @@ export async function postDealComment(req: Request, res: Response, next: NextFun
       userId: req.user.id,
       action: "comment-deal",
       entityType: "Deal",
-      entityId: req.params.id,
+      entityId: dealId,
       metadata: { commentId: comment.id },
     });
     res.status(201).json(comment);
@@ -136,7 +143,7 @@ export async function postDealComment(req: Request, res: Response, next: NextFun
 
 export async function getPipeline(req: Request, res: Response, next: NextFunction) {
   try {
-    const managerId = req.query.managerId as string | undefined;
+    const managerId = optionalString(req.query.managerId);
     const board = await getPipelineBoard(managerId);
     res.json(board);
   } catch (error) {

@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
+  Grid,
   MenuItem,
   Select,
   Stack,
   Typography,
 } from "@mui/material";
-import Grid from "@mui/material/Grid2";
 import {
   Bar,
   BarChart,

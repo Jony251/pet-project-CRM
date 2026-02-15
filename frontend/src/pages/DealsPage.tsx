@@ -16,7 +16,8 @@ import {
   Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { DndContext, DragEndEvent, useDraggable, useDroppable } from "@dnd-kit/core";
+import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
+import type { DragEndEvent } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import {
@@ -63,14 +64,25 @@ export default function DealsPage() {
 
   useEffect(() => {
     void (async () => {
-      const [clientsResponse, managersResponse] = await Promise.all([
-        http.get<{ items: Client[] }>("/clients", { params: { page: 1, limit: 200 } }),
-        http.get<{ items: User[] }>("/users", { params: { role: "MANAGER", page: 1, limit: 200 } }),
-      ]);
-      setClients(clientsResponse.data.items);
-      setManagers(managersResponse.data.items);
+      try {
+        const clientsResponse = await http.get<{ items: Client[] }>("/clients", {
+          params: { page: 1, limit: 200 },
+        });
+        setClients(clientsResponse.data.items);
+
+        if (canWrite) {
+          const managersResponse = await http.get<{ items: User[] }>("/users", {
+            params: { role: "MANAGER", page: 1, limit: 200 },
+          });
+          setManagers(managersResponse.data.items);
+        } else {
+          setManagers([]);
+        }
+      } catch {
+        setManagers([]);
+      }
     })();
-  }, []);
+  }, [canWrite]);
 
   const board = useMemo(() => {
     return statuses.map((status) => {
