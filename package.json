@@ -1,0 +1,14 @@
+{
+  "name": "crm-system",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Full-featured CRM system for SMB",
+  "scripts": {
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "build": "npm run build --prefix backend && npm run build --prefix frontend",
+    "lint": "npm run lint --prefix frontend",
+    "db:migrate": "npm run prisma:migrate --prefix backend",
+    "db:seed": "npm run prisma:seed --prefix backend"
+  }
+}
