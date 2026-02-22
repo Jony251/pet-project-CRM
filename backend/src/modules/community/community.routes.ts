@@ -1,0 +1,11 @@
+import { Router } from "express";
+import { authenticate } from "../../middlewares/auth";
+import * as ctrl from "./community.controller";
+const router = Router();
+router.use(authenticate);
+router.get("/users", ctrl.users);
+router.get("/feed", ctrl.feed);
+router.post("/feed/:id/like", ctrl.likeFeed);
+router.get("/forum", ctrl.forum);
+router.get("/meetups", ctrl.meetups);
+export default router;

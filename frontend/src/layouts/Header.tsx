@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   AppBar,
   Avatar,
@@ -37,7 +37,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const { mode, toggleMode } = useThemeStore();
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotificationStore();
+  const { notifications, unreadCount, markAsRead, markAllAsRead, fetchNotifications } = useNotificationStore();
+
+  useEffect(() => { void fetchNotifications(); }, [fetchNotifications]);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [notifAnchor, setNotifAnchor] = useState<null | HTMLElement>(null);
@@ -151,7 +153,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                   <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: n.read ? 'transparent' : 'primary.main', flexShrink: 0, mt: 0.5 }} />
                   <ListItemText
                     primary={n.title}
-                    secondary={`${n.message} · ${formatRelativeTime(n.time)}`}
+                    secondary={`${n.message} · ${formatRelativeTime(n.createdAt ?? n.time ?? '')}`}
                     primaryTypographyProps={{ fontSize: '0.8125rem', fontWeight: n.read ? 400 : 600 }}
                     secondaryTypographyProps={{ fontSize: '0.75rem', noWrap: true }}
                   />

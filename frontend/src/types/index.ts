@@ -3,10 +3,11 @@ export interface User {
   name: string;
   email: string;
   avatar?: string;
-  role: 'admin' | 'manager' | 'viewer';
+  role: string;
   location?: string;
   bio?: string;
-  joinedAt: string;
+  joinedAt?: string;
+  createdAt?: string;
 }
 
 export interface Customer {
@@ -17,15 +18,15 @@ export interface Customer {
   location: string;
   orders: number;
   spent: number;
-  lastOrder: string;
-  status: 'active' | 'inactive' | 'pending';
+  lastOrder?: string;
+  status: string;
 }
 
 export interface Order {
   id: string;
   customer: string;
   date: string;
-  status: 'completed' | 'pending' | 'cancelled' | 'refunded' | 'processing';
+  status: string;
   items: number;
   total: number;
   paymentMethod: string;
@@ -37,7 +38,7 @@ export interface Invoice {
   customer: string;
   date: string;
   dueDate: string;
-  status: 'paid' | 'due' | 'overdue' | 'draft';
+  status: string;
   amount: number;
 }
 
@@ -49,7 +50,7 @@ export interface Product {
   price: number;
   stock: number;
   rating: number;
-  status: 'active' | 'draft' | 'archived';
+  status: string;
   description?: string;
 }
 
@@ -58,8 +59,8 @@ export interface Transaction {
   description: string;
   date: string;
   amount: number;
-  type: 'credit' | 'debit';
-  status: 'completed' | 'pending' | 'cancelled';
+  type: string;
+  status: string;
   category: string;
 }
 
@@ -67,20 +68,22 @@ export interface Task {
   id: string;
   title: string;
   description?: string;
-  status: 'todo' | 'in_progress' | 'review' | 'done';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: string;
+  priority: string;
   assignee?: string;
+  assignedUser?: { id: string; name: string };
   dueDate?: string;
   tags?: string[];
 }
 
 export interface Message {
   id: string;
-  senderId: string;
+  senderId?: string;
   senderName: string;
   senderAvatar?: string;
   content: string;
-  timestamp: string;
+  timestamp?: string;
+  createdAt?: string;
   read: boolean;
 }
 
@@ -96,10 +99,11 @@ export interface Conversation {
 
 export interface Notification {
   id: string;
-  type: 'info' | 'success' | 'warning' | 'error';
+  type: string;
   title: string;
   message: string;
-  time: string;
+  time?: string;
+  createdAt?: string;
   read: boolean;
 }
 
@@ -125,8 +129,9 @@ export interface FeedPost {
   likes: number;
   comments: number;
   shares: number;
-  time: string;
-  liked: boolean;
+  time?: string;
+  createdAt?: string;
+  liked?: boolean;
 }
 
 export interface ForumPost {
@@ -159,7 +164,7 @@ export interface Job {
   company: string;
   companyLogo?: string;
   location: string;
-  type: 'full-time' | 'part-time' | 'contract' | 'freelance';
+  type: string;
   salary: string;
   posted: string;
   tags: string[];
@@ -178,7 +183,7 @@ export interface CalendarEvent {
 export interface Campaign {
   id: string;
   name: string;
-  status: 'active' | 'draft' | 'completed' | 'paused';
+  status: string;
   type: string;
   sent: number;
   opened: number;
