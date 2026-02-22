@@ -1,0 +1,374 @@
+import { useState } from 'react';
+import {
+  Box,
+  Collapse,
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
+import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
+import CampaignOutlinedIcon from '@mui/icons-material/CampaignOutlined';
+import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
+import ChatOutlinedIcon from '@mui/icons-material/ChatOutlined';
+import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import BarChartOutlinedIcon from '@mui/icons-material/BarChartOutlined';
+import ShowChartOutlinedIcon from '@mui/icons-material/ShowChartOutlined';
+import { sidebarColors } from '../theme/palette';
+
+export const SIDEBAR_WIDTH = 256;
+
+interface SidebarProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+interface NavItem {
+  label: string;
+  icon: React.ReactNode;
+  path?: string;
+  children?: { label: string; path: string }[];
+}
+
+const navSections: NavSection[] = [
+  {
+    title: '',
+    items: [
+      {
+        label: 'Dashboard',
+        icon: <DashboardOutlinedIcon />,
+        children: [
+          { label: 'Main', path: '/' },
+          { label: 'Analytics', path: '/analytics' },
+          { label: 'Fintech', path: '/fintech' },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'E-Commerce',
+    items: [
+      {
+        label: 'E-Commerce',
+        icon: <ShoppingCartOutlinedIcon />,
+        children: [
+          { label: 'Customers', path: '/ecommerce/customers' },
+          { label: 'Orders', path: '/ecommerce/orders' },
+          { label: 'Invoices', path: '/ecommerce/invoices' },
+          { label: 'Shop', path: '/ecommerce/shop' },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Community',
+    items: [
+      {
+        label: 'Community',
+        icon: <PeopleOutlinedIcon />,
+        children: [
+          { label: 'Users Tabs', path: '/community/users' },
+          { label: 'Profile', path: '/community/profile' },
+          { label: 'Feed', path: '/community/feed' },
+          { label: 'Forum', path: '/community/forum' },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Finance',
+    items: [
+      {
+        label: 'Finance',
+        icon: <AccountBalanceWalletOutlinedIcon />,
+        children: [
+          { label: 'Cards', path: '/finance/cards' },
+          { label: 'Transactions', path: '/finance/transactions' },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Job Board',
+    items: [
+      { label: 'Job Board', icon: <BarChartOutlinedIcon />, path: '/jobs' },
+    ],
+  },
+  {
+    title: '',
+    items: [
+      { label: 'Tasks', icon: <AssignmentOutlinedIcon />, path: '/tasks' },
+      { label: 'Messages', icon: <ChatOutlinedIcon />, path: '/messages' },
+      { label: 'Calendar', icon: <CalendarTodayOutlinedIcon />, path: '/calendar' },
+      { label: 'Campaigns', icon: <CampaignOutlinedIcon />, path: '/campaigns' },
+      { label: 'Analytics', icon: <ShowChartOutlinedIcon />, path: '/analytics-page' },
+      { label: 'Settings', icon: <SettingsOutlinedIcon />, path: '/settings' },
+    ],
+  },
+];
+
+function NavItemComponent({ item, depth = 0 }: { item: NavItem; depth?: number }) {
+  const [open, setOpen] = useState(item.label === 'Dashboard');
+
+  const hasChildren = item.children && item.children.length > 0;
+
+  const handleClick = () => {
+    if (hasChildren) {
+      setOpen(!open);
+    }
+  };
+
+  return (
+    <>
+      <ListItemButton
+        onClick={handleClick}
+        sx={{
+          py: 1,
+          px: 2,
+          mx: 1.5,
+          borderRadius: 1,
+          mb: 0.25,
+          color: sidebarColors.text,
+          '&:hover': {
+            bgcolor: sidebarColors.bgHover,
+            color: sidebarColors.textActive,
+          },
+          ...(depth > 0 && { pl: 5 }),
+        }}
+      >
+        <ListItemIcon
+          sx={{
+            minWidth: 36,
+            color: 'inherit',
+            '& .MuiSvgIcon-root': { fontSize: 20 },
+          }}
+        >
+          {item.icon}
+        </ListItemIcon>
+        <ListItemText
+          primary={item.label}
+          primaryTypographyProps={{
+            fontSize: '0.875rem',
+            fontWeight: 500,
+          }}
+        />
+        {hasChildren && (
+          <Box sx={{ color: sidebarColors.text, display: 'flex' }}>
+            {open ? <ExpandLess sx={{ fontSize: 18 }} /> : <ExpandMore sx={{ fontSize: 18 }} />}
+          </Box>
+        )}
+      </ListItemButton>
+      {hasChildren && (
+        <Collapse in={open} timeout="auto" unmountOnExit>
+          <List disablePadding>
+            {item.children!.map((child) => (
+              <ListItemButton
+                key={child.path}
+                sx={{
+                  py: 0.75,
+                  pl: 7,
+                  pr: 2,
+                  mx: 1.5,
+                  borderRadius: 1,
+                  mb: 0.25,
+                  color: sidebarColors.text,
+                  '&:hover': {
+                    bgcolor: sidebarColors.bgHover,
+                    color: sidebarColors.textActive,
+                  },
+                  ...(child.path === '/' && {
+                    color: sidebarColors.textActive,
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      left: 24,
+                      width: 6,
+                      height: 6,
+                      borderRadius: '50%',
+                      bgcolor: '#6366f1',
+                    },
+                  }),
+                }}
+              >
+                <ListItemText
+                  primary={child.label}
+                  primaryTypographyProps={{
+                    fontSize: '0.8125rem',
+                    fontWeight: child.path === '/' ? 500 : 400,
+                  }}
+                />
+              </ListItemButton>
+            ))}
+          </List>
+        </Collapse>
+      )}
+    </>
+  );
+}
+
+export default function Sidebar({ open, onClose }: SidebarProps) {
+  const muiTheme = useTheme();
+  const isDesktop = useMediaQuery(muiTheme.breakpoints.up('lg'));
+
+  const drawerContent = (
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        bgcolor: sidebarColors.bg,
+        overflowY: 'auto',
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          px: 3,
+          py: 2.5,
+          gap: 1.5,
+        }}
+      >
+        <Box
+          sx={{
+            width: 32,
+            height: 32,
+            borderRadius: 1,
+            background: 'linear-gradient(135deg, #6366f1 0%, #818cf8 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Typography sx={{ color: '#fff', fontWeight: 800, fontSize: 14 }}>M</Typography>
+        </Box>
+        <Typography
+          variant="h6"
+          sx={{
+            color: sidebarColors.header,
+            fontWeight: 700,
+            fontSize: '1.125rem',
+          }}
+        >
+          Mosaic
+        </Typography>
+      </Box>
+
+      <Box sx={{ flex: 1, py: 1 }}>
+        {navSections.map((section, sIdx) => (
+          <Box key={sIdx}>
+            {section.title && (
+              <Typography
+                sx={{
+                  px: 3,
+                  pt: 2,
+                  pb: 0.5,
+                  fontSize: '0.625rem',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  color: sidebarColors.text,
+                  opacity: 0.6,
+                }}
+              >
+                {section.title}
+              </Typography>
+            )}
+            <List disablePadding>
+              {section.items.map((item) => (
+                <NavItemComponent key={item.label} item={item} />
+              ))}
+            </List>
+          </Box>
+        ))}
+      </Box>
+
+      <Box
+        sx={{
+          p: 3,
+          mx: 1.5,
+          mb: 2,
+          borderRadius: 2,
+          bgcolor: 'rgba(99, 102, 241, 0.15)',
+        }}
+      >
+        <Typography sx={{ color: sidebarColors.header, fontSize: '0.8125rem', fontWeight: 600, mb: 0.5 }}>
+          Need help?
+        </Typography>
+        <Typography sx={{ color: sidebarColors.text, fontSize: '0.75rem', mb: 1.5, lineHeight: 1.5 }}>
+          Check our docs or reach out via chat.
+        </Typography>
+        <Box
+          component="button"
+          sx={{
+            bgcolor: '#6366f1',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 1,
+            px: 2,
+            py: 0.75,
+            fontSize: '0.75rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            '&:hover': { bgcolor: '#4f46e5' },
+            transition: 'background-color 0.15s',
+          }}
+        >
+          Documentation
+        </Box>
+      </Box>
+    </Box>
+  );
+
+  return (
+    <>
+      {isDesktop ? (
+        <Drawer
+          variant="permanent"
+          sx={{
+            width: SIDEBAR_WIDTH,
+            flexShrink: 0,
+            '& .MuiDrawer-paper': {
+              width: SIDEBAR_WIDTH,
+              border: 'none',
+              bgcolor: sidebarColors.bg,
+            },
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+      ) : (
+        <Drawer
+          variant="temporary"
+          open={open}
+          onClose={onClose}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            '& .MuiDrawer-paper': {
+              width: SIDEBAR_WIDTH,
+              border: 'none',
+              bgcolor: sidebarColors.bg,
+            },
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+      )}
+    </>
+  );
+}
