@@ -1,20 +1,17 @@
-import { useState } from 'react';
 import { Box, useMediaQuery, useTheme } from '@mui/material';
+import { Outlet } from 'react-router-dom';
 import Sidebar, { SIDEBAR_WIDTH } from './Sidebar';
 import Header from './Header';
+import { useSidebarStore } from '../stores/sidebarStore';
 
-interface DashboardLayoutProps {
-  children: React.ReactNode;
-}
-
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+export default function DashboardLayout() {
+  const { open, setOpen } = useSidebarStore();
   const muiTheme = useTheme();
   const isDesktop = useMediaQuery(muiTheme.breakpoints.up('lg'));
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar open={open} onClose={() => setOpen(false)} />
 
       <Box
         component="main"
@@ -23,12 +20,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           display: 'flex',
           flexDirection: 'column',
           minHeight: '100vh',
-          ...(isDesktop && {
-            maxWidth: `calc(100% - ${SIDEBAR_WIDTH}px)`,
-          }),
+          ...(isDesktop && { maxWidth: `calc(100% - ${SIDEBAR_WIDTH}px)` }),
         }}
       >
-        <Header onMenuClick={() => setSidebarOpen(true)} />
+        <Header onMenuClick={() => setOpen(true)} />
 
         <Box
           sx={{
@@ -40,7 +35,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             mx: 'auto',
           }}
         >
-          {children}
+          <Outlet />
         </Box>
       </Box>
     </Box>

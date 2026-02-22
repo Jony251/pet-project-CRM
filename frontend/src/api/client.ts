@@ -13,7 +13,11 @@ function simulateDelay(ms = 300): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-export async function fetchPaginated<T extends Record<string, unknown>>(
+function getField(item: unknown, key: string): unknown {
+  return (item as Record<string, unknown>)[key];
+}
+
+export async function fetchPaginated<T>(
   allData: T[],
   options: FetchOptions = {},
 ): Promise<PaginatedResponse<T>> {
@@ -25,22 +29,22 @@ export async function fetchPaginated<T extends Record<string, unknown>>(
   if (search) {
     const q = search.toLowerCase();
     filtered = filtered.filter((item) =>
-      Object.values(item).some((v) => String(v).toLowerCase().includes(q)),
+      Object.values(item as Record<string, unknown>).some((v) => String(v).toLowerCase().includes(q)),
     );
   }
 
   if (filter) {
     for (const [key, value] of Object.entries(filter)) {
       if (value && value !== 'all') {
-        filtered = filtered.filter((item) => String(item[key]).toLowerCase() === value.toLowerCase());
+        filtered = filtered.filter((item) => String(getField(item, key)).toLowerCase() === value.toLowerCase());
       }
     }
   }
 
   if (sortBy) {
     filtered.sort((a, b) => {
-      const aVal = a[sortBy];
-      const bVal = b[sortBy];
+      const aVal = getField(a, sortBy);
+      const bVal = getField(b, sortBy);
       const cmp = String(aVal).localeCompare(String(bVal), undefined, { numeric: true });
       return sortDir === 'asc' ? cmp : -cmp;
     });
