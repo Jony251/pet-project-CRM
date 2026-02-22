@@ -1,49 +1,26 @@
-import { useEffect } from "react";
-import { Route, Routes } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "./hooks/redux";
-import { fetchMeThunk } from "./features/auth/authSlice";
-import AppLayout from "./layout/AppLayout";
-import ProtectedRoute from "./components/ProtectedRoute";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import DashboardPage from "./pages/DashboardPage";
-import ClientsPage from "./pages/ClientsPage";
-import DealsPage from "./pages/DealsPage";
-import TasksPage from "./pages/TasksPage";
-import NotFoundPage from "./pages/NotFoundPage";
+import { Route, Routes } from 'react-router-dom';
+import DashboardLayout from './layouts/DashboardLayout';
+import DashboardPage from './pages/DashboardPage';
 
-function App() {
-  const dispatch = useAppDispatch();
-  const { token, user } = useAppSelector((state) => state.auth);
-
-  useEffect(() => {
-    if (token && !user) {
-      void dispatch(fetchMeThunk());
-    }
-  }, [dispatch, token, user]);
-
+export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-
       <Route
         path="/"
         element={
-          <ProtectedRoute>
-            <AppLayout />
-          </ProtectedRoute>
+          <DashboardLayout>
+            <DashboardPage />
+          </DashboardLayout>
         }
-      >
-        <Route index element={<DashboardPage />} />
-        <Route path="clients" element={<ClientsPage />} />
-        <Route path="deals" element={<DealsPage />} />
-        <Route path="tasks" element={<TasksPage />} />
-      </Route>
-
-      <Route path="*" element={<NotFoundPage />} />
+      />
+      <Route
+        path="*"
+        element={
+          <DashboardLayout>
+            <DashboardPage />
+          </DashboardLayout>
+        }
+      />
     </Routes>
   );
 }
-
-export default App;

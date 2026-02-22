@@ -1,157 +1,126 @@
-import { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  Grid,
-  MenuItem,
-  Select,
-  Stack,
-  Typography,
-} from "@mui/material";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-  Cell,
-  LineChart,
-  Line,
-} from "recharts";
-import { useAppDispatch, useAppSelector } from "../hooks/redux";
-import { fetchDashboardThunk, fetchRevenueThunk } from "../features/analytics/analyticsSlice";
+import { Box, Grid } from '@mui/material';
+import DashboardHeader from '../components/DashboardHeader';
+import WelcomeBanner from '../components/WelcomeBanner';
+import MetricCard from '../components/MetricCard';
+import SalesChart from '../components/SalesChart';
+import RealtimeChart from '../components/RealtimeChart';
+import SalesRefundsChart from '../components/SalesRefundsChart';
+import TopChannels from '../components/TopChannels';
+import ActivityFeed from '../components/ActivityFeed';
+import IncomeExpense from '../components/IncomeExpense';
+import CustomersTable from '../components/CustomersTable';
+import SalesOverTime from '../components/SalesOverTime';
+import RefundsReasons from '../components/RefundsReasons';
 
-const colors = ["#1976d2", "#42a5f5", "#66bb6a", "#ffa726", "#ef5350"];
+const metricCards = [
+  {
+    title: 'Total Revenue',
+    value: '$24,780',
+    change: 49,
+    chartColor: '#6366f1',
+    chartData: [
+      { value: 18 }, { value: 22 }, { value: 19 }, { value: 28 },
+      { value: 25 }, { value: 32 }, { value: 30 }, { value: 38 },
+      { value: 35 }, { value: 42 }, { value: 40 }, { value: 48 },
+    ],
+  },
+  {
+    title: 'Total Orders',
+    value: '$17,489',
+    change: -14,
+    chartColor: '#0ea5e9',
+    chartData: [
+      { value: 32 }, { value: 28 }, { value: 35 }, { value: 25 },
+      { value: 30 }, { value: 22 }, { value: 28 }, { value: 20 },
+      { value: 24 }, { value: 18 }, { value: 22 }, { value: 15 },
+    ],
+  },
+  {
+    title: 'Active Users',
+    value: '9,962',
+    change: 29,
+    chartColor: '#22c55e',
+    chartData: [
+      { value: 12 }, { value: 18 }, { value: 15 }, { value: 22 },
+      { value: 20 }, { value: 28 }, { value: 25 }, { value: 32 },
+      { value: 30 }, { value: 35 }, { value: 33 }, { value: 38 },
+    ],
+  },
+  {
+    title: 'Avg. Revenue',
+    value: '$2,341',
+    change: 7,
+    chartColor: '#f59e0b',
+    chartData: [
+      { value: 20 }, { value: 22 }, { value: 24 }, { value: 23 },
+      { value: 25 }, { value: 24 }, { value: 26 }, { value: 28 },
+      { value: 27 }, { value: 29 }, { value: 30 }, { value: 32 },
+    ],
+  },
+  {
+    title: 'Conversion',
+    value: '12.3%',
+    change: 3.2,
+    chartColor: '#ec4899',
+    chartData: [
+      { value: 10 }, { value: 12 }, { value: 11 }, { value: 14 },
+      { value: 13 }, { value: 16 }, { value: 15 }, { value: 18 },
+      { value: 17 }, { value: 20 }, { value: 19 }, { value: 22 },
+    ],
+  },
+];
 
 export default function DashboardPage() {
-  const dispatch = useAppDispatch();
-  const { dashboard, revenue } = useAppSelector((state) => state.analytics);
-  const [period, setPeriod] = useState<"monthly" | "quarterly" | "yearly">("monthly");
-
-  useEffect(() => {
-    void dispatch(fetchDashboardThunk());
-  }, [dispatch]);
-
-  useEffect(() => {
-    void dispatch(fetchRevenueThunk({ period }));
-  }, [dispatch, period]);
-
   return (
-    <Stack spacing={3}>
-      <Typography variant="h4" fontWeight={700}>
-        Analytics Dashboard
-      </Typography>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <DashboardHeader />
+      <WelcomeBanner />
 
-      <Grid container spacing={2}>
-        <Grid size={{ xs: 12, md: 3 }}>
-          <MetricCard title="Total Leads" value={dashboard?.totals.totalLeads ?? 0} />
+      <Grid container spacing={3}>
+        {metricCards.map((card) => (
+          <Grid key={card.title} size={{ xs: 12, sm: 6, lg: 2.4 }}>
+            <MetricCard {...card} />
+          </Grid>
+        ))}
+      </Grid>
+
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, lg: 8 }}>
+          <SalesChart />
         </Grid>
-        <Grid size={{ xs: 12, md: 3 }}>
-          <MetricCard title="Total Deals" value={dashboard?.totals.totalDeals ?? 0} />
-        </Grid>
-        <Grid size={{ xs: 12, md: 3 }}>
-          <MetricCard title="Conversion Rate" value={`${dashboard?.totals.conversionRate ?? 0}%`} />
-        </Grid>
-        <Grid size={{ xs: 12, md: 3 }}>
-          <MetricCard title="Revenue Won" value={`$${(dashboard?.totals.revenueWon ?? 0).toLocaleString()}`} />
+        <Grid size={{ xs: 12, lg: 4 }}>
+          <RealtimeChart />
         </Grid>
       </Grid>
 
-      <Grid container spacing={2}>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" mb={2}>
-                Deals by Stage
-              </Typography>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={dashboard?.pipeline ?? []}
-                    dataKey="dealsCount"
-                    nameKey="status"
-                    outerRadius={100}
-                    label
-                  >
-                    {(dashboard?.pipeline ?? []).map((_, index) => (
-                      <Cell key={index} fill={colors[index % colors.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, lg: 8 }}>
+          <SalesRefundsChart />
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" mb={2}>
-                Deals per Manager
-              </Typography>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={dashboard?.dealsPerManager ?? []}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="managerName" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="dealsCount" fill="#1976d2" />
-                  <Bar dataKey="amount" fill="#66bb6a" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+        <Grid size={{ xs: 12, lg: 4 }}>
+          <RefundsReasons />
         </Grid>
       </Grid>
 
-      <Card>
-        <CardContent>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
-            <Typography variant="h6">Revenue Trend</Typography>
-            <Select
-              size="small"
-              value={period}
-              onChange={(event) => setPeriod(event.target.value as typeof period)}
-            >
-              <MenuItem value="monthly">Monthly</MenuItem>
-              <MenuItem value="quarterly">Quarterly</MenuItem>
-              <MenuItem value="yearly">Yearly</MenuItem>
-            </Select>
-          </Stack>
-          <ResponsiveContainer width="100%" height={320}>
-            <LineChart data={revenue}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="label" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="revenue" stroke="#1976d2" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-    </Stack>
-  );
-}
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, lg: 8 }}>
+          <SalesOverTime />
+        </Grid>
+        <Grid size={{ xs: 12, lg: 4 }}>
+          <IncomeExpense />
+        </Grid>
+      </Grid>
 
-function MetricCard({ title, value }: { title: string; value: string | number }) {
-  return (
-    <Card>
-      <CardContent>
-        <Typography variant="body2" color="text.secondary">
-          {title}
-        </Typography>
-        <Typography variant="h4" fontWeight={700} mt={1}>
-          {value}
-        </Typography>
-      </CardContent>
-    </Card>
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, lg: 8 }}>
+          <TopChannels />
+        </Grid>
+        <Grid size={{ xs: 12, lg: 4 }}>
+          <ActivityFeed />
+        </Grid>
+      </Grid>
+
+      <CustomersTable />
+    </Box>
   );
 }
