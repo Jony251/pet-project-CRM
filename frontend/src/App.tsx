@@ -48,6 +48,7 @@ import Roadmap from './pages/utility/Roadmap';
 import Faqs from './pages/utility/Faqs';
 import EmptyStatePage from './pages/utility/EmptyStatePage';
 import KnowledgeBase from './pages/utility/KnowledgeBase';
+import ApiDocs from './pages/utility/ApiDocs';
 import NotFound from './pages/utility/NotFound';
 
 export default function App() {
@@ -119,6 +120,7 @@ export default function App() {
         <Route path="utility/faqs" element={<Faqs />} />
         <Route path="utility/empty-state" element={<EmptyStatePage />} />
         <Route path="utility/knowledge-base" element={<KnowledgeBase />} />
+        <Route path="utility/api-docs" element={<ApiDocs />} />
       </Route>
 
       {/* 404 */}

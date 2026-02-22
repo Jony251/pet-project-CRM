@@ -6,136 +6,382 @@ datasource db {
   provider = "postgresql"
 }
 
+// ──────────── Enums ────────────
+
 enum Role {
   ADMIN
   MANAGER
   VIEWER
 }
 
-enum DealStatus {
-  NEW
-  CONTACTED
-  PROPOSAL
-  WON
-  LOST
+enum OrderStatus {
+  COMPLETED
+  PROCESSING
+  PENDING
+  CANCELLED
+  REFUNDED
+}
+
+enum InvoiceStatus {
+  PAID
+  DUE
+  OVERDUE
+  DRAFT
+}
+
+enum ProductStatus {
+  ACTIVE
+  DRAFT
+  ARCHIVED
+}
+
+enum TransactionType {
+  CREDIT
+  DEBIT
+}
+
+enum TransactionStatus {
+  COMPLETED
+  PENDING
+  CANCELLED
 }
 
 enum TaskStatus {
   TODO
   IN_PROGRESS
+  REVIEW
   DONE
-  BLOCKED
 }
 
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum CampaignStatus {
+  ACTIVE
+  DRAFT
+  COMPLETED
+  PAUSED
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  FREELANCE
+}
+
+// ──────────── Core Auth ────────────
+
 model User {
-  id               String          @id @default(cuid())
-  name             String
-  email            String          @unique
-  password         String
-  role             Role            @default(VIEWER)
-  assignedClients  Client[]        @relation("AssignedManager")
-  dealsManaged     Deal[]          @relation("DealManager")
-  dealComments     DealComment[]
-  assignedTasks    Task[]          @relation("TaskAssignee")
-  createdTasks     Task[]          @relation("TaskCreator")
-  activities       ActivityLog[]
-  interactions     Interaction[]
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(VIEWER)
+  location  String?
+  bio       String?
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tasks           Task[]          @relation("TaskAssignee")
+  createdTasks    Task[]          @relation("TaskCreator")
+  sentMessages    Message[]       @relation("MessageSender")
+  notifications   Notification[]
+  feedPosts       FeedPost[]
+  forumPosts      ForumPost[]
+  activities      ActivityLog[]
 
   @@index([email, role])
 }
 
-model Client {
-  id                String        @id @default(cuid())
-  name              String
-  email             String
-  phone             String?
-  company           String?
-  source            String?
-  assignedManagerId String?
-  assignedManager   User?         @relation("AssignedManager", fields: [assignedManagerId], references: [id])
-  deals             Deal[]
-  interactions      Interaction[]
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+// ──────────── E-Commerce ────────────
 
-  @@index([name, company])
-  @@index([email])
-  @@index([source])
-  @@index([assignedManagerId])
-}
-
-model Interaction {
+model Customer {
   id        String   @id @default(cuid())
-  clientId  String
-  userId    String
-  type      String
-  note      String
-  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  email     String
+  avatar    String?
+  location  String
+  orders    Int      @default(0)
+  spent     Float    @default(0)
+  lastOrder DateTime?
+  status    String   @default("active")
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@index([clientId, createdAt])
+  orderRecords  Order[]
+  invoices      Invoice[]
+
+  @@index([name])
+  @@index([status])
 }
 
-model Deal {
-  id        String        @id @default(cuid())
-  title     String
-  amount    Float
-  status    DealStatus    @default(NEW)
-  notes     String?
-  clientId  String
-  managerId String
-  client    Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  manager   User          @relation("DealManager", fields: [managerId], references: [id], onDelete: Cascade)
-  comments  DealComment[]
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+model Order {
+  id            String      @id @default(cuid())
+  customer      String
+  customerId    String?
+  date          DateTime    @default(now())
+  status        OrderStatus @default(PENDING)
+  items         Int         @default(1)
+  total         Float
+  paymentMethod String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  customerRef   Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
 
   @@index([status])
-  @@index([managerId, status])
-  @@index([clientId])
+  @@index([customerId])
 }
 
-model DealComment {
-  id        String   @id @default(cuid())
-  dealId    String
-  userId    String
-  comment   String
-  deal      Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+model Invoice {
+  id         String        @id @default(cuid())
+  number     String        @unique
+  customer   String
+  customerId String?
+  date       DateTime      @default(now())
+  dueDate    DateTime
+  status     InvoiceStatus @default(DRAFT)
+  amount     Float
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
 
-  @@index([dealId, createdAt])
+  customerRef Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([customerId])
 }
+
+model Product {
+  id          String        @id @default(cuid())
+  name        String
+  category    String
+  description String?
+  price       Float
+  stock       Int           @default(0)
+  rating      Float         @default(0)
+  status      ProductStatus @default(ACTIVE)
+  image       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([category])
+  @@index([status])
+}
+
+// ──────────── Finance ────────────
+
+model Transaction {
+  id          String            @id @default(cuid())
+  description String
+  date        DateTime          @default(now())
+  amount      Float
+  type        TransactionType
+  status      TransactionStatus @default(COMPLETED)
+  category    String
+  createdAt   DateTime          @default(now())
+
+  @@index([type, status])
+}
+
+// ──────────── Tasks ────────────
 
 model Task {
-  id             String     @id @default(cuid())
+  id             String       @id @default(cuid())
   title          String
   description    String?
-  deadline       DateTime?
-  status         TaskStatus @default(TODO)
-  assignedUserId String
-  createdById    String
-  assignedUser   User       @relation("TaskAssignee", fields: [assignedUserId], references: [id], onDelete: Cascade)
-  createdBy      User       @relation("TaskCreator", fields: [createdById], references: [id], onDelete: Cascade)
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  status         TaskStatus   @default(TODO)
+  priority       TaskPriority @default(MEDIUM)
+  assignedUserId String?
+  createdById    String?
+  dueDate        DateTime?
+  tags           String[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
-  @@index([status, deadline])
+  assignedUser   User?        @relation("TaskAssignee", fields: [assignedUserId], references: [id], onDelete: SetNull)
+  createdBy      User?        @relation("TaskCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([status, priority])
   @@index([assignedUserId])
 }
 
+// ──────────── Messaging ────────────
+
+model Conversation {
+  id              String    @id @default(cuid())
+  participantName String
+  lastMessage     String?
+  lastMessageTime DateTime  @default(now())
+  unreadCount     Int       @default(0)
+  online          Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  messages        Message[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  senderId       String?
+  senderName     String
+  content        String
+  read           Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User?        @relation("MessageSender", fields: [senderId], references: [id], onDelete: SetNull)
+
+  @@index([conversationId, createdAt])
+}
+
+// ──────────── Community ────────────
+
+model CommunityUser {
+  id        String   @id @default(cuid())
+  name      String
+  handle    String   @unique
+  location  String
+  bio       String
+  avatar    String?
+  bgColor   String   @default("#6366f1")
+  followers Int      @default(0)
+  following Int      @default(0)
+  posts     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model FeedPost {
+  id       String   @id @default(cuid())
+  authorId String?
+  author   String
+  content  String
+  image    String?
+  likes    Int      @default(0)
+  comments Int      @default(0)
+  shares   Int      @default(0)
+  createdAt DateTime @default(now())
+
+  authorUser User?  @relation(fields: [authorId], references: [id], onDelete: SetNull)
+}
+
+model ForumPost {
+  id           String   @id @default(cuid())
+  title        String
+  authorId     String?
+  author       String
+  category     String
+  replies      Int      @default(0)
+  views        Int      @default(0)
+  lastActivity DateTime @default(now())
+  pinned       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  authorUser   User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([category])
+}
+
+model Meetup {
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  date         DateTime
+  location     String
+  attendees    Int      @default(0)
+  maxAttendees Int      @default(100)
+  image        String?
+  tags         String[]
+  createdAt    DateTime @default(now())
+}
+
+// ──────────── Job Board ────────────
+
+model Job {
+  id       String   @id @default(cuid())
+  title    String
+  company  String
+  location String
+  type     JobType  @default(FULL_TIME)
+  salary   String
+  posted   DateTime @default(now())
+  tags     String[]
+  featured Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([type])
+}
+
+// ──────────── Calendar ────────────
+
+model CalendarEvent {
+  id     String   @id @default(cuid())
+  title  String
+  start  DateTime
+  end    DateTime
+  color  String   @default("#6366f1")
+  allDay Boolean  @default(false)
+}
+
+// ──────────── Campaigns ────────────
+
+model Campaign {
+  id         String         @id @default(cuid())
+  name       String
+  status     CampaignStatus @default(DRAFT)
+  type       String
+  sent       Int            @default(0)
+  opened     Int            @default(0)
+  clicked    Int            @default(0)
+  conversion Float          @default(0)
+  startDate  DateTime
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@index([status])
+}
+
+// ──────────── Notifications ────────────
+
+model Notification {
+  id      String           @id @default(cuid())
+  userId  String?
+  type    NotificationType @default(INFO)
+  title   String
+  message String
+  read    Boolean          @default(false)
+  createdAt DateTime       @default(now())
+
+  user    User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+}
+
+// ──────────── Activity Log ────────────
+
 model ActivityLog {
   id         String   @id @default(cuid())
-  userId     String
+  userId     String?
   action     String
   entityType String
   entityId   String
   metadata   Json?
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   timestamp  DateTime @default(now())
+
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([entityType, entityId])
   @@index([userId, timestamp])
