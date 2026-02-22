@@ -1,4 +1,5 @@
 import { Box, Grid } from '@mui/material';
+import DashboardHeader from '../components/DashboardHeader';
 import WelcomeBanner from '../components/WelcomeBanner';
 import MetricCard from '../components/MetricCard';
 import SalesChart from '../components/SalesChart';
@@ -36,7 +37,7 @@ const metricCards = [
   },
   {
     title: 'Active Users',
-    value: '$9,962',
+    value: '9,962',
     change: 29,
     chartColor: '#22c55e',
     chartData: [
@@ -72,6 +73,7 @@ const metricCards = [
 export default function DashboardPage() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <DashboardHeader />
       <WelcomeBanner />
 
       <Grid container spacing={3}>

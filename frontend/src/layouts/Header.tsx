@@ -19,7 +19,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import MenuIcon from '@mui/icons-material/Menu';
-import { SIDEBAR_WIDTH } from './Sidebar';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -41,10 +40,6 @@ export default function Header({ onMenuClick }: HeaderProps) {
         borderBottom: '1px solid',
         borderColor: 'divider',
         color: 'text.primary',
-        ...(isDesktop && {
-          width: `calc(100% - ${SIDEBAR_WIDTH}px)`,
-          ml: `${SIDEBAR_WIDTH}px`,
-        }),
       }}
     >
       <Toolbar sx={{ gap: 1, minHeight: { xs: 56, sm: 64 } }}>
