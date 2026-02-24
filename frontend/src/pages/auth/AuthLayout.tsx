@@ -51,7 +51,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
             <Typography sx={{ color: '#fff', fontWeight: 800, fontSize: 22 }}>M</Typography>
           </Box>
           <Typography sx={{ color: '#fff', fontSize: '1.75rem', fontWeight: 700, mb: 1.5, lineHeight: 1.3 }}>
-            Build your dashboard with Mosaic
+            Build your dashboard with pet_CRM
           </Typography>
           <Typography sx={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9375rem', lineHeight: 1.6 }}>
             A powerful admin template that provides a clean and scalable foundation for building modern dashboards and web applications.
