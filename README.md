@@ -1,3 +1,6 @@
+<img width="1669" height="897" alt="image" src="https://github.com/user-attachments/assets/74915549-c17c-4391-8713-50eb23da5719" />
+
+
 # CRM System (SPA + REST API)
 
 A full-featured CRM platform for small and medium-sized businesses to manage:
