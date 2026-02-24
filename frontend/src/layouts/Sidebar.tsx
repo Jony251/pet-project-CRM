@@ -289,7 +289,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           <Typography sx={{ color: '#fff', fontWeight: 800, fontSize: 14 }}>M</Typography>
         </Box>
         <Typography variant="h6" sx={{ color: sidebarColors.header, fontWeight: 700, fontSize: '1.125rem' }}>
-          Mosaic
+          pet_CRM
         </Typography>
       </Box>
 
