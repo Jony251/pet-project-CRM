@@ -4,7 +4,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PageHeader from '../../components/common/PageHeader';
 
 const faqs = [
-  { q: 'How do I get started with Mosaic?', a: 'Simply create an account and follow the onboarding wizard. You\'ll be up and running in less than 5 minutes. Our getting started guide covers all the basics.' },
+  { q: 'How do I get started with pet_CRM?', a: 'Simply create an account and follow the onboarding wizard. You\'ll be up and running in less than 5 minutes. Our getting started guide covers all the basics.' },
   { q: 'Can I invite team members?', a: 'Yes! You can invite unlimited team members on all plans. Go to Settings > Team to add members and assign roles.' },
   { q: 'What payment methods do you accept?', a: 'We accept all major credit cards (Visa, Mastercard, Amex), PayPal, and bank transfers for annual plans.' },
   { q: 'Is there a free trial?', a: 'Yes, all plans come with a 14-day free trial. No credit card required. You can upgrade or cancel at any time.' },

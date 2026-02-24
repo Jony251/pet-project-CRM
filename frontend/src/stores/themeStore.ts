@@ -16,6 +16,6 @@ export const useThemeStore = create<ThemeState>()(
       toggleMode: () => set((s) => ({ mode: s.mode === 'light' ? 'dark' : 'light' })),
       setMode: (mode) => set({ mode }),
     }),
-    { name: 'mosaic-theme' },
+    { name: 'pet_CRM-theme' },
   ),
 );

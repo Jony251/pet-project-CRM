@@ -7,7 +7,7 @@ const entries = [
   { version: 'v2.2.1', date: 'Dec 10, 2025', type: 'fix', title: 'Chart rendering fix', description: 'Fixed an issue where charts would not resize properly on window resize.' },
   { version: 'v2.2.0', date: 'Dec 5, 2025', type: 'feature', title: 'Kanban board', description: 'New drag-and-drop Kanban board for task management with column customization.' },
   { version: 'v2.1.0', date: 'Nov 28, 2025', type: 'improvement', title: 'Performance optimization', description: 'Reduced initial bundle size by 40% with code splitting and lazy loading.' },
-  { version: 'v2.0.0', date: 'Nov 15, 2025', type: 'feature', title: 'Mosaic 2.0 launch', description: 'Complete redesign with new component library, improved navigation, and comprehensive dashboard widgets.' },
+  { version: 'v2.0.0', date: 'Nov 15, 2025', type: 'feature', title: 'pet_CRM 2.0 launch', description: 'Complete redesign with new component library, improved navigation, and comprehensive dashboard widgets.' },
 ];
 
 const typeColors: Record<string, string> = { feature: '#6366f1', fix: '#ef4444', improvement: '#22c55e' };

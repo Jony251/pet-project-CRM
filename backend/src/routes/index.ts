@@ -16,7 +16,7 @@ import notificationsRoutes from "../modules/notifications/notifications.routes";
 const router = Router();
 
 router.get("/health", (_req, res) => {
-  res.json({ status: "ok", service: "mosaic-backend", timestamp: new Date().toISOString() });
+  res.json({ status: "ok", service: "pet_CRM-backend", timestamp: new Date().toISOString() });
 });
 
 router.use("/auth", authRoutes);

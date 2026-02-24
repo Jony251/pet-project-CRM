@@ -64,7 +64,7 @@ export const useAuthStore = create<AuthState>()(
       clearError: () => set({ error: null }),
     }),
     {
-      name: 'mosaic-auth',
+      name: 'pet_CRM-auth',
       partialize: (state) => ({
         user: state.user,
         token: state.token,

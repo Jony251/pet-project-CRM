@@ -29,7 +29,7 @@ export const useSidebarStore = create<SidebarState>()(
         })),
     }),
     {
-      name: 'mosaic-sidebar',
+      name: 'pet_CRM-sidebar',
       partialize: (state) => ({
         collapsed: state.collapsed,
         expandedSections: state.expandedSections,

@@ -1,10 +1,10 @@
 export const openApiSpec = {
   openapi: "3.0.3",
   info: {
-    title: "Mosaic Dashboard API",
+    title: "pet_CRM API",
     version: "2.0.0",
     description:
-      "Full REST API powering the Mosaic Dashboard. Covers authentication, e-commerce (customers/orders/invoices/products), finance (transactions), tasks, messaging, community (users/feed/forum/meetups), job board, calendar events, campaigns, and notifications.\n\n" +
+      "Full REST API powering pet_CRM. Covers authentication, e-commerce (customers/orders/invoices/products), finance (transactions), tasks, messaging, community (users/feed/forum/meetups), job board, calendar events, campaigns, and notifications.\n\n" +
       "## Authentication\n" +
       "All protected endpoints require a `Bearer <token>` header. Obtain a token via `POST /auth/login`.\n\n" +
       "## Pagination\n" +

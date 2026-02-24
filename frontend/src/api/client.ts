@@ -4,7 +4,7 @@ const BASE_URL = import.meta.env.VITE_API_URL ?? '/api/v1';
 
 function getToken(): string | null {
   try {
-    const raw = localStorage.getItem('mosaic-auth');
+    const raw = localStorage.getItem('pet_CRM-auth');
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     return parsed?.state?.token ?? null;
