@@ -11,9 +11,8 @@ import StatusBadge from '../../components/common/StatusBadge';
 import LoadingState from '../../components/common/LoadingState';
 import { useFetch } from '../../hooks/useFetch';
 import { fetchPaginated } from '../../api/client';
-import { customers as allCustomers } from '../../api/mock/data';
 import { formatCurrency, getInitials } from '../../utils/format';
-import type { SortDirection } from '../../types';
+import type { Customer, SortDirection } from '../../types';
 
 const avatarColors = ['#6366f1', '#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6'];
 
@@ -27,7 +26,7 @@ export default function Customers() {
   const [selected, setSelected] = useState<string[]>([]);
 
   const { data: result, loading } = useFetch(
-    () => fetchPaginated(allCustomers, { page: page + 1, pageSize: rowsPerPage, search, sortBy, sortDir, filter: { status: statusFilter } }),
+    () => fetchPaginated<Customer>('/customers', { page: page + 1, pageSize: rowsPerPage, search, sortBy, sortDir, filter: { status: statusFilter } }),
     [page, rowsPerPage, search, statusFilter, sortBy, sortDir],
   );
 

@@ -1,72 +1,76 @@
-import type { PaginatedResponse, SortDirection } from '../types';
+import type { PaginatedResponse } from '../types';
+
+const BASE_URL = import.meta.env.VITE_API_URL ?? '/api/v1';
+
+function getToken(): string | null {
+  try {
+    const raw = localStorage.getItem('mosaic-auth');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed?.state?.token ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = getToken();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(options.headers as Record<string, string> ?? {}),
+  };
+
+  const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ message: res.statusText }));
+    throw new Error(body.message ?? `Request failed: ${res.status}`);
+  }
+
+  if (res.status === 204) return undefined as T;
+  return res.json();
+}
+
+export const api = {
+  get: <T>(path: string) => request<T>(path),
+  post: <T>(path: string, data?: unknown) => request<T>(path, { method: 'POST', body: JSON.stringify(data) }),
+  patch: <T>(path: string, data?: unknown) => request<T>(path, { method: 'PATCH', body: JSON.stringify(data) }),
+  delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
+};
 
 interface FetchOptions {
   page?: number;
   pageSize?: number;
   search?: string;
   sortBy?: string;
-  sortDir?: SortDirection;
+  sortDir?: string;
   filter?: Record<string, string>;
 }
 
-function simulateDelay(ms = 300): Promise<void> {
-  return new Promise((r) => setTimeout(r, ms));
-}
-
-function getField(item: unknown, key: string): unknown {
-  return (item as Record<string, unknown>)[key];
+export function buildQuery(options: FetchOptions): string {
+  const params = new URLSearchParams();
+  if (options.page) params.set('page', String(options.page));
+  if (options.pageSize) params.set('limit', String(options.pageSize));
+  if (options.search) params.set('search', options.search);
+  if (options.sortBy) params.set('sortBy', options.sortBy);
+  if (options.sortDir) params.set('sortDir', options.sortDir);
+  if (options.filter) {
+    for (const [k, v] of Object.entries(options.filter)) {
+      if (v && v !== 'all') params.set(k, v);
+    }
+  }
+  const qs = params.toString();
+  return qs ? `?${qs}` : '';
 }
 
 export async function fetchPaginated<T>(
-  allData: T[],
+  endpoint: string,
   options: FetchOptions = {},
 ): Promise<PaginatedResponse<T>> {
-  await simulateDelay(Math.random() * 300 + 100);
-
-  const { page = 1, pageSize = 10, search, sortBy, sortDir = 'asc', filter } = options;
-  let filtered = [...allData];
-
-  if (search) {
-    const q = search.toLowerCase();
-    filtered = filtered.filter((item) =>
-      Object.values(item as Record<string, unknown>).some((v) => String(v).toLowerCase().includes(q)),
-    );
-  }
-
-  if (filter) {
-    for (const [key, value] of Object.entries(filter)) {
-      if (value && value !== 'all') {
-        filtered = filtered.filter((item) => String(getField(item, key)).toLowerCase() === value.toLowerCase());
-      }
-    }
-  }
-
-  if (sortBy) {
-    filtered.sort((a, b) => {
-      const aVal = getField(a, sortBy);
-      const bVal = getField(b, sortBy);
-      const cmp = String(aVal).localeCompare(String(bVal), undefined, { numeric: true });
-      return sortDir === 'asc' ? cmp : -cmp;
-    });
-  }
-
-  const total = filtered.length;
-  const totalPages = Math.ceil(total / pageSize);
-  const start = (page - 1) * pageSize;
-  const data = filtered.slice(start, start + pageSize);
-
-  return { data, total, page, pageSize, totalPages };
+  return api.get<PaginatedResponse<T>>(`${endpoint}${buildQuery(options)}`);
 }
 
-export async function fetchAll<T>(allData: T[]): Promise<T[]> {
-  await simulateDelay(Math.random() * 200 + 50);
-  return [...allData];
-}
-
-export async function fetchById<T extends { id: string }>(
-  allData: T[],
-  id: string,
-): Promise<T | null> {
-  await simulateDelay(Math.random() * 150 + 50);
-  return allData.find((item) => item.id === id) ?? null;
+export async function fetchAll<T>(endpoint: string): Promise<T[]> {
+  return api.get<T[]>(endpoint);
 }

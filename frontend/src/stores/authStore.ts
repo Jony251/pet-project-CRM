@@ -1,6 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User } from '../types';
+import { api } from '../api/client';
+
+interface AuthResponse {
+  user: User;
+  token: string;
+}
 
 interface AuthState {
   user: User | null;
@@ -15,16 +21,6 @@ interface AuthState {
   clearError: () => void;
 }
 
-const mockUser: User = {
-  id: '1',
-  name: 'Acme Inc.',
-  email: 'admin@acme.com',
-  role: 'admin',
-  location: 'New York, USA',
-  bio: 'Building the future of SaaS.',
-  joinedAt: '2024-01-15',
-};
-
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
@@ -34,33 +30,24 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       error: null,
 
-      login: async (email: string, _pw: string) => {
-        void _pw;
+      login: async (email: string, password: string) => {
         set({ isLoading: true, error: null });
-        await new Promise((r) => setTimeout(r, 800));
-
-        if (email === 'admin@acme.com' || email.includes('@')) {
-          set({
-            user: { ...mockUser, email },
-            token: 'mock-jwt-token-' + Date.now(),
-            isAuthenticated: true,
-            isLoading: false,
-          });
-        } else {
-          set({ isLoading: false, error: 'Invalid credentials. Try any email address.' });
+        try {
+          const res = await api.post<AuthResponse>('/auth/login', { email, password });
+          set({ user: res.user, token: res.token, isAuthenticated: true, isLoading: false });
+        } catch (err) {
+          set({ isLoading: false, error: err instanceof Error ? err.message : 'Login failed' });
         }
       },
 
-      register: async (name: string, email: string, _pw: string) => {
-        void _pw;
+      register: async (name: string, email: string, password: string) => {
         set({ isLoading: true, error: null });
-        await new Promise((r) => setTimeout(r, 1000));
-        set({
-          user: { ...mockUser, name, email },
-          token: 'mock-jwt-token-' + Date.now(),
-          isAuthenticated: true,
-          isLoading: false,
-        });
+        try {
+          const res = await api.post<AuthResponse>('/auth/register', { name, email, password });
+          set({ user: res.user, token: res.token, isAuthenticated: true, isLoading: false });
+        } catch (err) {
+          set({ isLoading: false, error: err instanceof Error ? err.message : 'Registration failed' });
+        }
       },
 
       logout: () => {

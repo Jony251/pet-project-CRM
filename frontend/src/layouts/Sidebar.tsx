@@ -23,7 +23,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import WorkOutlineOutlinedIcon from '@mui/icons-material/WorkOutlineOutlined';
 import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link as RouterLink } from 'react-router-dom';
 import { sidebarColors } from '../theme/palette';
 import { useSidebarStore } from '../stores/sidebarStore';
 
@@ -149,6 +149,7 @@ const navSections: NavSection[] = [
           { label: 'FAQs', path: '/utility/faqs' },
           { label: 'Empty State', path: '/utility/empty-state' },
           { label: 'Knowledge Base', path: '/utility/knowledge-base' },
+          { label: 'API Docs', path: '/utility/api-docs' },
         ],
       },
     ],
@@ -321,17 +322,19 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           Need help?
         </Typography>
         <Typography sx={{ color: sidebarColors.text, fontSize: '0.75rem', mb: 1.5, lineHeight: 1.5 }}>
-          Check our docs or reach out via chat.
+          View full API reference and backend integration guides.
         </Typography>
         <Box
-          component="button"
+          component={RouterLink}
+          to="/utility/api-docs"
           sx={{
             bgcolor: '#6366f1', color: '#fff', border: 'none', borderRadius: 1,
             px: 2, py: 0.75, fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer',
             '&:hover': { bgcolor: '#4f46e5' }, transition: 'background-color 0.15s',
+            textDecoration: 'none', display: 'inline-block',
           }}
         >
-          Documentation
+          API Documentation
         </Box>
       </Box>
     </Box>
