@@ -138,6 +138,6 @@ More detail on running and deploying: [`docs/deployment-guide.md`](docs/deployme
 
 ## Author
 
-**Evgeny Nemchenko**, full-stack developer (web and Android), Israel. Open to full-stack and frontend roles and to freelance projects.
+**Evgeny Levitan**, full-stack developer (web and Android), Israel. Open to full-stack and frontend roles and to freelance projects.
 
 [bluecat.cc](https://bluecat.cc) · [LinkedIn](https://www.linkedin.com/in/evgeny-nemchenko) · [nevgeny90@gmail.com](mailto:nevgeny90@gmail.com) · [GitHub @Jony251](https://github.com/Jony251)
